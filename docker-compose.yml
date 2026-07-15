@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile.web
+      dockerfile: Dockerfile
     image: miner-web
     ports:
       - "8000:7860"
