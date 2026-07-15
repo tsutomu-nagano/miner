@@ -1,0 +1,17 @@
+[project]
+name = "excel-metadata-extractor"
+version = "0.1.0"
+description = "Extract structured metadata from Excel workbooks."
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.115.6",
+  "openpyxl==3.1.5",
+  "uvicorn[standard]==0.34.0",
+]
+
+[project.scripts]
+excel-metadata = "excel_metadata_extractor.cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

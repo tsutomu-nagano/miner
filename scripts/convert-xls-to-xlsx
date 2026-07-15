@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+  echo "usage: convert-xls-to-xlsx INPUT.xls [OUTPUT_DIR]" >&2
+  exit 2
+fi
+
+input="$1"
+output_dir="${2:-$(dirname "$input")}"
+
+case "$input" in
+  *.xls) ;;
+  *)
+    echo "input must be an .xls file: $input" >&2
+    exit 2
+    ;;
+esac
+
+mkdir -p "$output_dir"
+libreoffice --headless --convert-to xlsx --outdir "$output_dir" "$input" >/tmp/convert-xls.log 2>&1 || {
+  cat /tmp/convert-xls.log >&2
+  exit 1
+}
+
+converted="$output_dir/$(basename "$input" .xls).xlsx"
+if [ ! -f "$converted" ]; then
+  cat /tmp/convert-xls.log >&2
+  echo "converted file was not created: $converted" >&2
+  exit 1
+fi
+
+echo "$converted"

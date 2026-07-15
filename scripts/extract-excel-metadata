@@ -1,0 +1,43 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -lt 1 ]; then
+  echo "usage: extract-excel-metadata INPUT.xls[x] [miner args...]" >&2
+  exit 2
+fi
+
+input="$1"
+shift
+
+case "$input" in
+  http://*|https://*)
+    download_dir="$(pwd)/.downloads"
+    mkdir -p "$download_dir"
+    downloaded_path="$(
+      docker run --rm \
+        -v "$(pwd):/work" \
+        miner "$input" --download-only /work/.downloads
+    )"
+    input="$download_dir/$(basename "$downloaded_path")"
+    ;;
+esac
+
+absolute_input="$(readlink -f "$input")"
+work_dir="$(dirname "$absolute_input")"
+work_file="$(basename "$absolute_input")"
+extract_input="/work/$work_file"
+
+case "$work_file" in
+  *.xls)
+    converted_path="$(
+      docker run --rm \
+        -v "$work_dir:/work" \
+        miner-xls-converter "/work/$work_file"
+    )"
+    extract_input="$converted_path"
+    ;;
+esac
+
+docker run --rm \
+  -v "$work_dir:/work" \
+  miner "$extract_input" "$@"

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Excel Metadata Visualizer</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <aside class="sidebar">
+          <div>
+            <p class="eyebrow">e-Stat Excel</p>
+            <h1>メタデータ抽出</h1>
+          </div>
+          <form id="extract-form" class="input-panel">
+            <label for="source-url">ファイルダウンロードURL</label>
+            <textarea id="source-url" name="source" rows="5" spellcheck="false">https://www.e-stat.go.jp/stat-search/file-download?statInfId=000040387904&amp;fileKind=0</textarea>
+            <label class="check-row">
+              <input id="include-empty-cells" type="checkbox" name="include_empty_cells" />
+              <span>空セルも走査</span>
+            </label>
+            <button id="submit-button" type="submit">抽出</button>
+          </form>
+          <div id="status" class="status" role="status">URLを入力して抽出できます。</div>
+        </aside>
+
+        <section class="results" aria-live="polite">
+          <div class="summary-grid" id="summary-grid"></div>
+          <section class="panel">
+            <div class="panel-heading">
+              <h2>統計表メタデータ</h2>
+              <select id="sheet-select" aria-label="シート選択"></select>
+            </div>
+            <div id="statistical-view" class="statistical-view empty-state">抽出結果がここに表示されます。</div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading">
+              <h2>Excelプレビュー</h2>
+              <select id="preview-sheet-select" aria-label="プレビューシート選択"></select>
+            </div>
+            <div id="excel-preview" class="excel-preview empty-state">対象ファイルの内容がここに表示されます。</div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading">
+              <h2>JSON</h2>
+              <button id="copy-json" type="button">コピー</button>
+            </div>
+            <pre id="json-output">{}</pre>
+          </section>
+        </section>
+      </section>
+    </main>
+    <script src="/static/app.js?v=20260715-7"></script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+FROM debian:trixie-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libreoffice-calc \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+
+COPY scripts/convert-xls-to-xlsx /usr/local/bin/convert-xls-to-xlsx
+RUN chmod +x /usr/local/bin/convert-xls-to-xlsx
+
+ENTRYPOINT ["convert-xls-to-xlsx"]
