@@ -10,6 +10,7 @@ dist/
 build/
 outputs/
 .downloads/
+frontend/dist/
 *.xlsx
 *.xlsm
 *.xls

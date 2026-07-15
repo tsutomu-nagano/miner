@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import tempfile
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from .converter_api import convert_xls_file, router as converter_router
@@ -14,11 +14,21 @@ from .extractor import ExcelMetadataError, extract_metadata
 from .preview import extract_sheet_previews
 
 
-STATIC_DIR = Path(__file__).resolve().parent / "web_static"
-
 app = FastAPI(title="Excel Metadata Visualizer")
 app.include_router(converter_router)
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+allowed_origins = [
+    origin.strip()
+    for origin in os.environ.get("ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+if allowed_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Content-Type"],
+    )
 
 
 class ExtractRequest(BaseModel):
@@ -27,8 +37,12 @@ class ExtractRequest(BaseModel):
 
 
 @app.get("/")
-def index() -> FileResponse:
-    return FileResponse(STATIC_DIR / "index.html")
+def index() -> dict[str, object]:
+    return {
+        "status": "ok",
+        "service": "excel-metadata-api",
+        "endpoints": ["/api/extract", "/convert", "/health", "/docs"],
+    }
 
 
 @app.post("/api/extract")

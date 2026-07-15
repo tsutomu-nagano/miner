@@ -8,6 +8,7 @@ const statisticalView = document.querySelector("#statistical-view");
 const excelPreview = document.querySelector("#excel-preview");
 const jsonOutput = document.querySelector("#json-output");
 const copyJsonButton = document.querySelector("#copy-json");
+const apiBaseUrl = (window.MINER_API_BASE_URL || "").replace(/\/$/, "");
 
 let currentMetadata = null;
 
@@ -22,7 +23,7 @@ form.addEventListener("submit", async (event) => {
   };
 
   try {
-    const response = await fetch("/api/extract", {
+    const response = await fetch(`${apiBaseUrl}/api/extract`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
