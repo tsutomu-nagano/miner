@@ -1,19 +1,8 @@
 services:
-  web:
+  api:
     build:
       context: .
       dockerfile: Dockerfile.web
     image: miner-web
-    environment:
-      CONVERTER_URL: http://converter:8001
     ports:
-      - "8000:8000"
-    depends_on:
-      - converter
-
-  converter:
-    build:
-      context: .
-      dockerfile: Dockerfile.converter-api
-    image: miner-xls-converter-api
-
+      - "8000:7860"

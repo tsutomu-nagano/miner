@@ -4,19 +4,47 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import APIRouter, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 
 
+router = APIRouter()
 app = FastAPI(title="XLS Converter")
+app.include_router(router)
 
 
-@app.get("/health")
+@router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.post("/convert")
+def convert_xls_file(input_path: Path, output_dir: Path) -> Path:
+    result = subprocess.run(
+        [
+            "libreoffice",
+            "--headless",
+            "--convert-to",
+            "xlsx",
+            "--outdir",
+            str(output_dir),
+            str(input_path),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip()
+        raise HTTPException(status_code=422, detail=detail)
+
+    output_path = output_dir / f"{input_path.stem}.xlsx"
+    if not output_path.exists():
+        raise HTTPException(status_code=422, detail="converted file was not created")
+
+    return output_path
+
+
+@router.post("/convert")
 async def convert_xls(
     request: Request,
     filename: str = Query(default="workbook.xls"),
@@ -32,28 +60,7 @@ async def convert_xls(
         if input_path.stat().st_size == 0:
             raise HTTPException(status_code=400, detail="empty file")
 
-        result = subprocess.run(
-            [
-                "libreoffice",
-                "--headless",
-                "--convert-to",
-                "xlsx",
-                "--outdir",
-                str(temp_path),
-                str(input_path),
-            ],
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        if result.returncode != 0:
-            detail = result.stderr.strip() or result.stdout.strip()
-            raise HTTPException(status_code=422, detail=detail)
-
-        output_path = temp_path / f"{input_path.stem}.xlsx"
-        if not output_path.exists():
-            raise HTTPException(status_code=422, detail="converted file was not created")
-
+        output_path = convert_xls_file(input_path, temp_path)
         stable_output = Path(tempfile.gettempdir()) / f"{input_path.stem}.xlsx"
         stable_output.write_bytes(output_path.read_bytes())
         return FileResponse(
@@ -61,4 +68,3 @@ async def convert_xls(
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             filename=stable_output.name,
         )
-

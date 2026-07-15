@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 import tempfile
-import os
 from pathlib import Path
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from .converter_api import convert_xls_file, router as converter_router
 from .downloader import DownloadError, download_workbook, is_url
 from .extractor import ExcelMetadataError, extract_metadata
 from .preview import extract_sheet_previews
@@ -19,6 +17,7 @@ from .preview import extract_sheet_previews
 STATIC_DIR = Path(__file__).resolve().parent / "web_static"
 
 app = FastAPI(title="Excel Metadata Visualizer")
+app.include_router(converter_router)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
@@ -42,7 +41,7 @@ def extract_from_url(request: ExtractRequest) -> dict[str, object]:
         try:
             workbook_path = download_workbook(source, Path(temp_dir))
             if workbook_path.suffix.lower() == ".xls":
-                workbook_path = convert_xls_with_service(workbook_path, Path(temp_dir))
+                workbook_path = convert_xls_file(workbook_path, Path(temp_dir))
             metadata = extract_metadata(
                 workbook_path,
                 include_empty_cells=request.include_empty_cells,
@@ -57,23 +56,3 @@ def extract_from_url(request: ExtractRequest) -> dict[str, object]:
 
     metadata["source"] = {"url": source}
     return metadata
-
-
-def convert_xls_with_service(workbook_path: Path, output_dir: Path) -> Path:
-    converter_url = os.environ.get("CONVERTER_URL")
-    if not converter_url:
-        raise ExcelMetadataError(
-            ".xls files require CONVERTER_URL for the separate converter container"
-        )
-
-    query = urlencode({"filename": workbook_path.name})
-    request = Request(
-        f"{converter_url.rstrip('/')}/convert?{query}",
-        data=workbook_path.read_bytes(),
-        headers={"Content-Type": "application/vnd.ms-excel"},
-        method="POST",
-    )
-    with urlopen(request, timeout=120) as response:
-        output_path = output_dir / f"{workbook_path.stem}.xlsx"
-        output_path.write_bytes(response.read())
-        return output_path
