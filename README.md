@@ -130,6 +130,8 @@ Build command: npm run build
 Build output directory: dist
 ```
 
+このリポジトリでは、Cloudflare Pages のGit連携時はダッシュボード側の設定を正とするため、`frontend/wrangler.toml` は置いていません。環境変数は Pages プロジェクトの `Settings > Environment variables` で設定してください。
+
 API 側には、フロントエンドのURLを許可するために `ALLOWED_ORIGINS` を設定します。複数指定する場合はカンマ区切りです。
 
 ```text
