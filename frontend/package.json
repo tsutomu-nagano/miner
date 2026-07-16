@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node scripts/write-config.js && vite --host 0.0.0.0",
     "build": "node scripts/write-config.js && vite build",
+    "deploy:pages": "npm run build && wrangler pages deploy dist --project-name miner-frontend",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc --noEmit"
   },

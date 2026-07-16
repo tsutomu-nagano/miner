@@ -92,8 +92,15 @@ Cloudflare Pages をWranglerで手元からデプロイする場合:
 
 ```bash
 cd frontend
-npm run build
-npx wrangler pages deploy dist --project-name miner-frontend
+npm run deploy:pages
+```
+
+Cloudflare Pages のGit連携でデプロイする場合、Deploy command に `wrangler deploy` は指定しません。Pagesの設定は以下にしてください。
+
+```text
+Root directory: frontend
+Build command: npm run build
+Build output directory: dist
 ```
 
 API 側には、フロントエンドのURLを許可するために `ALLOWED_ORIGINS` を設定します。複数指定する場合はカンマ区切りです。
