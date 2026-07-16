@@ -14,21 +14,41 @@ from .extractor import ExcelMetadataError, extract_metadata
 from .preview import extract_sheet_previews
 
 
-app = FastAPI(title="Excel Metadata Visualizer")
-app.include_router(converter_router)
-
-allowed_origins = [
-    origin.strip()
-    for origin in os.environ.get("ALLOWED_ORIGINS", "").split(",")
-    if origin.strip()
+DEFAULT_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
 ]
-if allowed_origins:
-    app.add_middleware(
+DEFAULT_ALLOWED_ORIGIN_REGEX = (
+    r"https://([a-zA-Z0-9-]+\.)*pages\.dev|"
+    r"https://([a-zA-Z0-9-]+\.)*vercel\.app"
+)
+
+
+def env_list(name: str) -> list[str]:
+    return [value.strip() for value in os.environ.get(name, "").split(",") if value.strip()]
+
+
+def configure_cors(api: FastAPI) -> None:
+    allowed_origins = env_list("ALLOWED_ORIGINS") or DEFAULT_ALLOWED_ORIGINS
+    allowed_origin_regex = (
+        os.environ.get("ALLOWED_ORIGIN_REGEX", "").strip()
+        or DEFAULT_ALLOWED_ORIGIN_REGEX
+    )
+
+    api.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
+        allow_origin_regex=allowed_origin_regex,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Content-Type"],
     )
+
+
+app = FastAPI(title="Excel Metadata Visualizer")
+app.include_router(converter_router)
+configure_cors(app)
 
 
 class ExtractRequest(BaseModel):
