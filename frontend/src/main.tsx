@@ -238,7 +238,7 @@ function App() {
       <section className="workspace">
         <aside className="sidebar">
           <div>
-            <p className="eyebrow">e-Stat Excel</p>
+            <img className="brand-logo" src="/logo.png" alt="e-Stat Excel" />
             <h1>メタデータ抽出</h1>
           </div>
 

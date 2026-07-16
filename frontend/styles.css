@@ -54,13 +54,11 @@ select {
   background: #fbfcfd;
 }
 
-.eyebrow {
-  margin: 0 0 6px;
-  color: var(--accent-strong);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
+.brand-logo {
+  display: block;
+  width: min(220px, 100%);
+  height: auto;
+  margin-bottom: 10px;
 }
 
 h1,

@@ -1,4 +1,10 @@
-![](logo.png)
+<p align="center"
+style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+  <img src="logo.png" alt="e-Stat Excel" width="360">
+  <span>Metadata Inspection and Extraction Reader for <span style="color:green">Excel</span></span>
+</p>
+
+## 概要
 
 Excelファイル（`.xlsx`, `.xlsm`, `.xltx`, `.xltm`, `.xls`）から、ブック・シート・セル構造のメタデータをJSONとして抽出するCLI/APIです。
 
