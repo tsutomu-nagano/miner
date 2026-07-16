@@ -7,6 +7,18 @@ services:
     dockerContext: .
     healthCheckPath: /health
     autoDeployTrigger: commit
+    buildFilter:
+      paths:
+        - Dockerfile
+        - Dockerfile.cli
+        - Dockerfile.converter
+        - requirements.txt
+        - pyproject.toml
+        - render.yaml
+        - docker-compose.yml
+        - src/**
+        - scripts/**
+        - tests/**
     envVars:
       - key: ALLOWED_ORIGINS
         sync: false

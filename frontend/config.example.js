@@ -1,1 +1,1 @@
-window.MINER_API_BASE_URL = "https://your-hf-space.hf.space";
+window.MINER_API_BASE_URL = "https://miner-api.onrender.com";

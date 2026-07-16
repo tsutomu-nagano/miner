@@ -72,6 +72,8 @@ Renderを手動で作る場合:
 
 - API: Web Service / Docker / Dockerfile Path `./Dockerfile`
 
+`render.yaml` では `buildFilter.paths` を設定しているため、`frontend/` だけの変更では Render API の自動デプロイは走りません。API関連ファイル、Dockerfile、依存関係、テスト、`render.yaml` が変わった場合のみ自動デプロイ対象になります。
+
 ## フロントエンド
 
 Cloudflare Pages または任意の静的ホスティングで運用できます。Cloudflare Pages の場合は、Pages Project の Root Directory を `frontend` にします。
