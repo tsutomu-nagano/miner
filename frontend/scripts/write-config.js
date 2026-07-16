@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const publicDir = join(root, "public");
-const apiBaseUrl = process.env.MINER_API_BASE_URL || "";
+const apiBaseUrl =
+  process.env.MINER_API_BASE_URL || process.env.VITE_MINER_API_BASE_URL || "";
 
 mkdirSync(publicDir, { recursive: true });
 writeFileSync(

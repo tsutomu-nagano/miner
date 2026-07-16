@@ -91,7 +91,11 @@ function App() {
   const settingsInputRef = useRef<HTMLInputElement>(null);
   const metadataInputRef = useRef<HTMLInputElement>(null);
 
-  const apiBaseUrl = (window.MINER_API_BASE_URL || "").replace(/\/$/, "");
+  const apiBaseUrl = (
+    window.MINER_API_BASE_URL ||
+    import.meta.env.VITE_MINER_API_BASE_URL ||
+    ""
+  ).replace(/\/$/, "");
   const stats = metadata?.statistical_metadata || [];
   const previews = metadata?.sheet_previews || [];
   const selectedStat = stats[selectedSheetIndex];

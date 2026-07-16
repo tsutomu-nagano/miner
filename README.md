@@ -82,6 +82,20 @@ Cloudflare Pages または任意の静的ホスティングで運用できます
 - Build output directory: `dist`
 - Environment variable: `MINER_API_BASE_URL`（例: `https://miner-api.onrender.com`）
 
+Cloudflare PagesでAPI URLが効いているかは、デプロイ後に以下を開いて確認できます。
+
+```text
+https://<your-pages>.pages.dev/config.js
+```
+
+期待値:
+
+```js
+window.MINER_API_BASE_URL = "https://miner-api.onrender.com";
+```
+
+空文字の場合は、Cloudflare Pages の Production 環境変数に `MINER_API_BASE_URL` を設定して再デプロイしてください。`VITE_MINER_API_BASE_URL` でもフォールバックできます。
+
 フロントエンドは Vite + React + TypeScript です。依存関係をインストールしてローカル起動する場合:
 
 ```bash
