@@ -1,4 +1,4 @@
-# miner
+![](logo.png)
 
 Excelファイル（`.xlsx`, `.xlsm`, `.xltx`, `.xltm`, `.xls`）から、ブック・シート・セル構造のメタデータをJSONとして抽出するCLI/APIです。
 
