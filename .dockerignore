@@ -4,6 +4,10 @@ __pycache__
 *.pyc
 .venv
 .downloads
+tmp
+frontend/node_modules
+frontend/dist
+frontend/.wrangler
 *.xlsx
 *.xlsm
 *.xls

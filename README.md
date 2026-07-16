@@ -1,17 +1,8 @@
----
-title: Excel Metadata API
-emoji: 📊
-colorFrom: blue
-colorTo: green
-sdk: docker
-app_port: 7860
----
-
 # miner
 
 Excelファイル（`.xlsx`, `.xlsm`, `.xltx`, `.xltm`, `.xls`）から、ブック・シート・セル構造のメタデータをJSONとして抽出するCLI/APIです。
 
-APIコンテナは LibreOffice を同梱し、`.xls` 変換 API とメタデータ抽出 API を 1 コンテナで提供します。フロントエンドは `frontend/` に分離し、Vercel で運用します。
+APIコンテナは LibreOffice を同梱し、`.xls` 変換 API とメタデータ抽出 API を 1 コンテナで提供します。フロントエンドは `frontend/` に分離した Vite + React アプリです。
 
 ## 抽出する主な情報
 
@@ -53,29 +44,83 @@ docker compose up --build
 - `POST /convert?filename=legacy.xls`: リクエストボディの `.xls` を `.xlsx` に変換して返します。
 - `GET /health`: ヘルスチェックを返します。
 
-Hugging Face Docker Space では root の `Dockerfile` を使います。コンテナは `PORT` 環境変数を優先し、未指定の場合は `7860` で起動します。
+## Renderへデプロイ
 
-GitHub Actions から Hugging Face Space に同期する場合は、GitHub に以下を設定します。
+このリポジトリは Render の Blueprint に対応しています。Render Dashboard で GitHub リポジトリを選び、root の `render.yaml` から Blueprint を作成してください。
 
-- Secret: `HF_TOKEN`
-- Repository variable: `HF_SPACE_ID`（例: `username/space-name`）
+作成されるサービス:
 
-Vercel でフロントエンドを運用する場合は、Vercel Project の Root Directory を `frontend` にします。
+- `miner-api`: Docker Web Service。root の `Dockerfile` を使い、FastAPI + LibreOffice を起動します。
+- `miner-frontend`: Static Site。`frontend/` をビルドして公開します。
 
-- Build Command: `npm run build`
-- Output Directory: `dist`
-- Environment variable: `MINER_API_BASE_URL`（例: `https://your-hf-space.hf.space`）
+Render作成時に以下の環境変数を設定します。
 
-HF API 側には、Vercel のURLを許可するために `ALLOWED_ORIGINS` を設定します。複数指定する場合はカンマ区切りです。
+### miner-api
 
 ```text
-ALLOWED_ORIGINS=https://your-vercel-app.vercel.app
+ALLOWED_ORIGINS=https://<miner-frontendのRender URL>
+```
+
+複数指定する場合はカンマ区切りです。
+
+```text
+ALLOWED_ORIGINS=https://miner-frontend.onrender.com,http://localhost:5174
+```
+
+### miner-frontend
+
+```text
+MINER_API_BASE_URL=https://<miner-apiのRender URL>
+```
+
+例:
+
+```text
+MINER_API_BASE_URL=https://miner-api.onrender.com
+```
+
+APIコンテナは Render が渡す `PORT` 環境変数を優先し、未指定の場合は `7860` で起動します。Render Web Service は外部HTTPを受けるために `0.0.0.0` へbindする必要があり、この `Dockerfile` はその条件を満たしています。
+
+Renderを手動で作る場合:
+
+- API: Web Service / Docker / Dockerfile Path `./Dockerfile`
+- Frontend: Static Site / Root Directory `frontend` / Build Command `npm ci && npm run build` / Publish Directory `dist`
+
+## フロントエンド
+
+Render Static Site、Cloudflare Pages、または任意の静的ホスティングで運用できます。Cloudflare Pages の場合は、Pages Project の Root Directory を `frontend` にします。
+
+- Build Command: `npm run build`
+- Build output directory: `dist`
+- Environment variable: `MINER_API_BASE_URL`（例: `https://miner-api.onrender.com`）
+
+フロントエンドは Vite + React + TypeScript です。依存関係をインストールしてローカル起動する場合:
+
+```bash
+cd frontend
+npm install
+MINER_API_BASE_URL=http://localhost:8000 npm run dev
+```
+
+Cloudflare Pages をWranglerで手元からデプロイする場合:
+
+```bash
+cd frontend
+npm run build
+npx wrangler pages deploy dist --project-name miner-frontend
+```
+
+API 側には、フロントエンドのURLを許可するために `ALLOWED_ORIGINS` を設定します。複数指定する場合はカンマ区切りです。
+
+```text
+ALLOWED_ORIGINS=https://miner-frontend.onrender.com
 ```
 
 フロントエンドをローカルでビルドする場合:
 
 ```bash
 cd frontend
+MINER_API_BASE_URL=http://localhost:8000 npm run typecheck
 MINER_API_BASE_URL=http://localhost:8000 npm run build
 ```
 
