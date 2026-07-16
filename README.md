@@ -96,6 +96,17 @@ window.MINER_API_BASE_URL = "https://miner-api.onrender.com";
 
 空文字の場合は、Cloudflare Pages の Production 環境変数に `MINER_API_BASE_URL` を設定して再デプロイしてください。`VITE_MINER_API_BASE_URL` でもフォールバックできます。
 
+Cloudflare Pages では、環境変数を必ず対象環境に設定してください。
+
+- Production deploy: `Production` の Variables and Secrets
+- Preview deploy: `Preview` の Variables and Secrets
+
+未設定のままビルドすると、`npm run build` は失敗するようにしています。ローカル検証などで空を許したい場合だけ、明示的に以下を付けます。
+
+```bash
+ALLOW_EMPTY_API_BASE_URL=1 npm run build
+```
+
 フロントエンドは Vite + React + TypeScript です。依存関係をインストールしてローカル起動する場合:
 
 ```bash
